@@ -1,0 +1,3 @@
+export("effectmeasures", "fitmeasures", "gesca.run", "latentmeasures", "qualmeasures")
+importFrom("stats", "cor", "cov", "na.omit", "runif", "sd", "var")
+importFrom("utils", "capture.output")
