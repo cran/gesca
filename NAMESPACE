@@ -1,3 +1,5 @@
-export("effectmeasures", "fitmeasures", "gesca.run", "latentmeasures", "qualmeasures")
+export("effectmeasures", "fitmeasures", "gesca.run", "latentmeasures", "qualmeasures", "summary.gesca")
+S3method(summary, gesca)
+
 importFrom("stats", "cor", "cov", "na.omit", "runif", "sd", "var")
 importFrom("utils", "capture.output")

@@ -1,5 +1,5 @@
-aeab18089aff4dc4e7efe26de0e34816 *DESCRIPTION
-57baae5b05cc0aa4f53e7457d2d099fc *NAMESPACE
+ae154ed65194004002b52221b7a975df *DESCRIPTION
+d4b8bb5e584ee0da85dec5ed886aac93 *NAMESPACE
 56fa1bf75ae63eeffd93414184e0d6e8 *R/GSCA_parsing_sourcefunctions.r
 901e413fdec511bb6b9a11d2730ecef3 *R/als.mg.ho2.imp.r
 b23de5f6310f52a1fb0f1847d4ba4726 *R/als.mg.ho2.r
@@ -21,3 +21,4 @@ addb769ad50315ff02b52c4ca1129301 *man/fitmeasures.Rd
 0d3cbf2381e39b8240a54f2bdf74f645 *man/gesca.run.Rd
 25cc5e5703733e55dd4b192d2eb6dc39 *man/latentmeasures.Rd
 b24a6e55e1f0b28cb059011579891416 *man/qualmeasures.Rd
+0d4b33f10f3acae4f322493bb63b3de5 *man/summary.gesca.Rd
