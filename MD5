@@ -1,4 +1,4 @@
-ae154ed65194004002b52221b7a975df *DESCRIPTION
+110eace64c15adf5282804d8f50363c7 *DESCRIPTION
 d4b8bb5e584ee0da85dec5ed886aac93 *NAMESPACE
 56fa1bf75ae63eeffd93414184e0d6e8 *R/GSCA_parsing_sourcefunctions.r
 901e413fdec511bb6b9a11d2730ecef3 *R/als.mg.ho2.imp.r
@@ -11,7 +11,7 @@ a15b853d1c188f92e694f1eb157bc75d *R/bootsample.r
 08b90471e7d40d24d6a16e269e33d30e *R/cronbach.alpha.r
 6ac1be8a3b02fae6cab13b09f4ba2527 *R/effects.r
 6a3c23292cb701390b676aac392cb9c6 *R/gsca.mg.ho2.r
-a15bf0fe5cf9abafcfade015f1b1297e *R/gsca.mg.r
+7663b6e8ad0ebba88f0cd790d1f9e8e8 *R/gsca.mg.r
 16915a3c3b9c589af7a3cd25372559eb *R/lvscore.r
 1b31ceb788bbf03ad3f1f31625a3de10 *R/modelfit.mg.r
 408eb9df046274fc7bf401f53c195f4d *data/gesca.rick2.rda

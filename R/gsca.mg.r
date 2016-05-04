@@ -3,7 +3,8 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 			ceps = 0.00001, moption = 0, missingvalue = NULL)
 {
 	#---------------------------------------
-	# Last revised Aug 28, 2015
+	# Last revised April 7, 2016
+	# revised to compute FIT_M when all indicators are formative
 	# for all missing data cases
 	# moption = 0 (no missing), 1 (listwise deletion), 2 (mean substitution), 3 (least squares imputation)
 	#---------------------------------------
@@ -50,14 +51,15 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 	}
 	A00 <- cbind(C00,B00)
 	
-	V001 <- matrix(0,nvar,nvar)
-	for (j in 1:nlv) {
-		nzaj <- which(C00[j,] != 0)
-		num_nzaj <- length(nzaj)
-			for (i in 1:1:num_nzaj) {
-				V001[nzaj[i],nzaj[i]] = 1
-			}
-	}
+	#V001 <- matrix(0,nvar,nvar)
+	#for (j in 1:nlv) {
+	#	nzaj <- which(C00[j,] != 0)
+	#	num_nzaj <- length(nzaj)
+	#		for (i in 1:1:num_nzaj) {
+	#			V001[nzaj[i],nzaj[i]] = 1
+	#		}
+	#}
+	V001 <- diag(1,nvar)
 	V00 <- cbind(V001,W00)
 	
 	# ---------------------------------------
