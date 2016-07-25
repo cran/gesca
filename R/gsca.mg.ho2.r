@@ -316,19 +316,20 @@ gsca.mg.ho2 <- function (z0, group_var, W001, W002, C00, B00,
 				for (j in 1:nlv) { R2[g,j] = t(B[,j])%*%CF_g[,j] }
 				# quality measures of 1st-order latents for indicators  
 				stdL <- CR[,s:ss]
-				j2 <- 0
+				# j2 <- 0 # removed june 22,2016
 				for (j in 1:nlv1) {
-					nnzload <- length(C00[j,][!C00[j,] == 0])
-					j1 <- j2 + 1
-					j2 <- j2 + nnzload
+					zind <- which(W001[,j] != 0)
+					nnzload <- length(zind)
+					# nnzload <- length(C00[j,][!C00[j,] == 0])
+					# j1 <- j2 + 1
+					# j2 <- j2 + nnzload
 					if ( nnzload > 0 ) {
-						sumload <- sum(stdL[,j]^2)
-						sumload_rho1 <- sum(stdL[,j])^2
-						sumload_rho2 <- sum(1-stdL[j1:j2,j]^2)
+						sumload <- sum(stdL[zind,j]^2)
+						sumload_rho1 <- sum(stdL[zind,j])^2
+						sumload_rho2 <- sum(1-stdL[zind,j]^2)
 						AVE[g,j] <- sumload/nnzload
 						rho[g,j] <- sumload_rho1/(sumload_rho1 + sumload_rho2)
 					}
-					zind = which(W001[,j] != 0)
 					nzj = length(zind)
 					if ( nzj > 1 ) {
 						zsubset <- z0_g[,zind]

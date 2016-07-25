@@ -290,20 +290,21 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 				CF_g <- corF[s:ss,s:ss]
 				B <- t(BR[,s:ss])
 				stdL <- CR[,s:ss]
-				j2 <- 0
+				# j2 <- 0 # removed june 22,2016
 				for (j in 1:nlv) {
 					R2[g,j] <- t(B[,j,drop=FALSE])%*%CF_g[,j,drop=FALSE]
-					nnzload <- length(C00[j,][!C00[j,] == 0])
-					j1 <- j2 + 1
-					j2 <- j2 + nnzload
+					zind <- which(W00[,j] != 0) # moved from below, june 22,2016
+					nnzload <- length(zind)
+					# nnzload <- length(C00[j,][!C00[j,] == 0]) # removed june 22,2016
+					# j1 <- j2 + 1 # removed june 22,2016
+					# j2 <- j2 + nnzload # removed june 22,2016
 					if ( nnzload > 0 ) {
-						sumload <- sum(stdL[,j]^2)
-						sumload_rho1 <- sum(stdL[,j])^2
-						sumload_rho2 <- sum(1-stdL[j1:j2,j]^2)
+						sumload <- sum(stdL[zind,j]^2) # removed june 22,2016
+						sumload_rho1 <- sum(stdL[zind,j])^2 # removed june 22,2016
+						sumload_rho2 <- sum(1-stdL[zind,j]^2) # removed june 22,2016
 						AVE[g,j] <- sumload/nnzload
 						rho[g,j] <- sumload_rho1/(sumload_rho1 + sumload_rho2)
 					}
-					zind = which(W00[,j] != 0)
 					nzj = length(zind)
 					if ( nzj > 1 ) {
 						zsubset <- z0_g[,zind]
