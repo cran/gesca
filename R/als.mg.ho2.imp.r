@@ -38,7 +38,7 @@ als.mg.ho2.imp <- function (Z, rawz0, W01, W02, A0, W1, W2, A, V, I, PHT, nvar, 
 					a[aindex] <- 0					# if fixed values, not all zeros
 					e <- matrix(0,1,sizea)
 					e[t] <- 1
-					Y <- Psi - Gamma%*%(A%*%H1 - a%*%e)
+					Y <- Psi - Gamma%*%(A%*%H1 + a%*%e) # Revised 2017-09-28
 					X <- Gamma[,aindex,drop=FALSE]
 					A[aindex,t] <- solve(t(X)%*%X, t(X)%*%Y%*%t(e))
 				}
