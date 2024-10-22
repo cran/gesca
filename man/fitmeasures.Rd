@@ -9,7 +9,6 @@ This function provides six model fit indices (FIT, Adjusted FIT, GFI, Standardiz
 \usage{
 fitmeasures(object)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
 An object of class. This can be created via the \code{\link{gesca.run}} function.
@@ -28,18 +27,19 @@ Hwang, H., & Takane, Y. (2014). Generalized structured component analysis: A Com
 \code{\link{gesca.run}}
 }
 \examples{
+\donttest{
 library(gesca)
 data(gesca.rick2) # Organizational identification example of Bagozzi
 
 # Model specification
 myModel <- "
-		# Measurement model 
+		# Measurement model
 		OP =~ cei1 + cei2 + cei3
 		OI =~ ma1 + ma2 + ma3
 		AC_J =~ orgcmt1 + orgcmt2 + orgcmt3
 		AC_L =~ orgcmt5 + orgcmt6 + orgcmt8
-		
-		# Structural model 
+
+		# Structural model
 		OI ~ OP
 		AC_J ~ OI
 		AC_L ~ OI
@@ -49,5 +49,5 @@ myModel <- "
 GSCA.group <- gesca.run(myModel, gesca.rick2, group.name = "gender", nbt=50)
 summary(GSCA.group)	# default output shows model fit indices as well, but
 fitmeasures(GSCA.group)	# this gives bootstrapped std errors and CI
-
+}
 }

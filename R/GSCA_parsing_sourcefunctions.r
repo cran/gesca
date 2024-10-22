@@ -45,7 +45,7 @@
 gesca.run <- function(myModel, data, group.name=NULL, group.equal=NULL, nbt=100, itmax=100, ceps=1e-5, moption=0, missingvalue=-9999) {
 	if (!is.character(myModel) || length(myModel) > 1 || nchar(myModel) == 0)
 		stop("formula should be a string")
-		
+
 	if (!is.data.frame(data) && !is.matrix(data) || !nrow(data) || !ncol(data))
 		stop("data should be a non-empty matrix or dataframe")
 
@@ -55,19 +55,19 @@ gesca.run <- function(myModel, data, group.name=NULL, group.equal=NULL, nbt=100,
 		cat("Missing value is defined to [", missingvalue, "]\n")
 	} else
 		moption = 0
-		
+
 	if (!is.null(group.name)) {
 		orig.gname <- group.name
 		if (length(group.name) > 1)
 			stop("group.name should be a column name or an index")
-			
+
 		if (is.na(match(group.name, colnames(data)))) {
 			if ((group.name - as.integer(group.name)) != 0 || ncol(data) < group.name || group.name < 0)
 				stop("group.name should be a column name or an index")
 		} else
 			group.name <- match(group.name, colnames(data))
 
-		# Get group var    
+		# Get group var
 		group.var <- as.character(data[,group.name])
 		# Sort
 		data = data[order(group.var),]
@@ -75,9 +75,9 @@ gesca.run <- function(myModel, data, group.name=NULL, group.equal=NULL, nbt=100,
 		group.var <- rep(1, nrow(data))
 		orig.gname <- NULL
 	}
-	
+
 	ret <- parse.formula(myModel, m.data=data, group.equal=group.equal)
-  
+
 	# Have high-order
 	if (!is.null(ret$W002))
 		msg <- capture.output(res <- gsca.mg.ho2(ret$Z0, group.var, ret$W00, ret$W002, ret$C00, ret$B00,
@@ -85,28 +85,29 @@ gesca.run <- function(myModel, data, group.name=NULL, group.equal=NULL, nbt=100,
 	else
 		msg <- capture.output(res <- gsca.mg(ret$Z0, group.var, ret$W00, ret$C00, ret$B00, ret$loadtype, ceps=ceps, nbt=nbt, itmax=itmax, moption=moption, missingvalue=missingvalue))
 
-	res$niter        <- as.numeric(strsplit(msg, " ")[[1]][6])
+	res$niter        <- res$niter
+	#gesca1.0.4 res$niter        <- as.numeric(strsplit(msg, " ")[[1]][6])
 	res$eps          <- ceps
 	res$wname        <- colnames(ret$Z0)
-	
+
 	if (!is.null(ret$W002))
 		res$lname    <- c(names(ret$loadtype), names(ret$loadtype2))
 	else
 		res$lname    <- names(ret$loadtype)
-		
+
 	res$grp          <- names(table(group.var))
 	res$gname        <- orig.gname
 	res$B00          <- ret$B00
 	res$C00          <- ret$C00
 	res$W00          <- ret$W00
 	res$nbt          <- nbt
-	
+
 	if (!is.null(ret$W002)) {
 		res$loadtype <- c(ret$loadtype, ret$loadtype2)
 		res$W002     <- ret$W002
 	} else
 		res$loadtype <- ret$loadtype
-		
+
 	class(res)       <- c("gesca", class(res))
 	invisible(res)
 }
@@ -117,9 +118,9 @@ gesca.run <- function(myModel, data, group.name=NULL, group.equal=NULL, nbt=100,
 # Objective : Converts string element in a formula into
 #              parsed return value by considering it as a function call
 # Accepts:
-#  - fun.cache: 
-#  - str      : 
-#  - idx      : 
+#  - fun.cache:
+#  - str      :
+#  - idx      :
 #
 # Requirements:
 #  - Formulas in myModel DO NOT need to be 'ordered'
@@ -165,7 +166,7 @@ parse.func <- function(fun.cache, str, idx) {
 		substr(tfun[2], 1, 1) != substr(tfun[2], 3, 3) ||
 		!is.na(match(substr(tfun[2], 1, 1), fun.cache[[tfun[1]]])))
 			stop("Invalid function [", str, "]")
-			
+
 		fun.cache[[tfun[1]]] <- c(fun.cache[[tfun[1]]], substr(tfun[2], 1, 1))
 		ret <- idx
 		idx <- idx + 1
@@ -234,7 +235,7 @@ parse.formula <- function(
   a.col <- colnames(m.data)
   if (length(a.col) == 0)
     a.col <- paste("V", 1:ncol(m.data), sep="")
-    
+
   # group.equal check
   b.equalL <- FALSE
   b.equalP <- FALSE
@@ -245,11 +246,11 @@ parse.formula <- function(
 	if (any(i.valid == 1)) b.equalL <- TRUE
 	if (any(i.valid == 2)) b.equalP <- TRUE
   }
-  
+
   # Divide and remove whitespaces
   a.fml <- gsub("\\s", "", strsplit(s.fml, "\n")[[1]])
   a.latent <- c()
-  
+
   # Remove comments
   i.cmt <- grep("^#", a.fml)
   if (length(i.cmt)) {
@@ -272,7 +273,7 @@ parse.formula <- function(
 	####
 	a.left <- unlist(lapply(a.const, function(a)a[1]))
     a.nice <- grep("^[a-zA-Z_]\\w*$", a.left)
-    
+
     # stop: invalid naming
     if (length(a.left) != length(a.nice)) {
 	  a.err <- a.left[-a.nice]
@@ -302,7 +303,7 @@ parse.formula <- function(
 	    cat("  ", a.nameconst[i], "=", a.const[i], "\n")
 	  }
 	}
-    
+
     # Remove parsed data
     a.fml[i.const] <- ""
   }
@@ -333,31 +334,31 @@ parse.formula <- function(
       a.err <- a.left[-a.nice]
       stop(paste("The following latents are invalid:", paste(a.err, collapse=" ")))
     }
-  
+
     # Make left guys to latent
     a.latent <- rep(1, length(a.left))
     names(a.latent) <- gsub("^([a-zA-Z_]\\w*).*$", "\\1", a.left)
-    
+
     # Determine 0/1
     i.0 <- which(gsub("^[a-zA-Z_]\\w*", "", a.left) == "(0)")
     a.latent[i.0] <- 0
-    
+
     # Check left duplication
     a.tbleft <- table(names(a.latent))
-    
+
     # stop: duplicated naming of latent
     if (any(a.tbleft > 1)) {
       stop(paste("Duplicated latent(s) definition found:",
 	    names(a.tbleft)[a.tbleft>1]))
     }
-    
+
     # Check left-mv duplication
     i.dup <- which(!is.na(match(names(a.latent), a.col)))
-    
+
     # stop: latent variable name(s) dup. w/ manifest variables
     if (length(i.dup))
       stop(paste("Duplicated latent naming(s) with manifest variables found:", paste(names(a.latent)[i.dup], collapse=" ")))
-  
+
     ####
     # Right-side variables check
     ####
@@ -365,7 +366,7 @@ parse.formula <- function(
     a.rcol <- lapply(strsplit(a.right, "\\+"), function(a)unlist(lapply(strsplit(a, "\\*"), function(b)b[length(b)])))
     a.rall <- unique(unlist(a.rcol))
     i.namechk <- which(is.na(match(a.rall, a.col)))
-    
+
     # stop: invalid column
     if (length(i.namechk))
       stop(paste("The following column(s) in the formula do not exist:", paste(a.rall[i.namechk], collapse=" "), "\nColumns:", paste(a.col, collapse=" ")))
@@ -376,12 +377,12 @@ parse.formula <- function(
     for (i in a.outer) {
       i.x <- I
       I <- I + 1
-      
+
       # For each element in the right part of the equation
 	  for (j in strsplit(i[2], "\\+")[[1]]) {
 	    #cat("J value\n")
 		#print(j)
-        
+
         # If the element contains *, it should be a constraint
 	    if (length(grep("\\*", j))) {
           # Assumes the former part is contraint/function, while the latter part is the variable
@@ -389,11 +390,11 @@ parse.formula <- function(
 
 		  # Try to convert it num
 		  tvar <- suppressWarnings(as.numeric(tmp[1]))
-          
+
 		  # Try to convert it const if fails
 		  if (is.na(tvar))
 		    tvar <- a.const[tmp[1]]
-            
+
 		  # Try to convert it function
 		  if (length(grep("^\\w+\\([^\\)]+\\)$", tmp[1]))) {
             tmp.ret   <- parse.func(fun.cache, tmp[1], idx.C00)
@@ -423,7 +424,7 @@ parse.formula <- function(
     }
     #browser()
     #print(a.col)
-    
+
     a.ridx <- lapply(a.rcol, function(a)match(a, a.col))
     names(a.ridx) <- names(a.latent)
     for (i in 1:length(a.ridx))
@@ -445,7 +446,7 @@ parse.formula <- function(
 	#} else
 	#  r.C00 <- t(r.W00)
     #print(r.W00)
-    
+
     # Remove parsed data
     a.fml[i.outer] <- ""
   } else {
@@ -454,7 +455,7 @@ parse.formula <- function(
     r.C00      <- NULL
   }
   n.W00 <- sum(r.W00 == n.param)
-  
+
   # Parse =: next
   i.higher <- grep("=:", a.fml)
   a.higher <- c()
@@ -477,46 +478,46 @@ parse.formula <- function(
       a.err <- a.left[-a.nice]
       stop(paste("The following high-order latents are invalid:", paste(a.err, collapse=" ")))
     }
-  
+
     # Make left guys to latent
     a.holatent <- rep(1, length(a.left))
     names(a.holatent) <- gsub("^([a-zA-Z_]\\w*).*$", "\\1", a.left)
-    
+
     # Determine 0/1
     i.0 <- which(gsub("^[a-zA-Z_]\\w*", "", a.left) == "(0)")
     a.holatent[i.0] <- 0
-  
+
     # Check left duplication
     a.tbleft <- table(names(a.holatent))
-    
+
     # stop: duplicated naming of latent
     if (any(a.tbleft > 1)) {
       stop(paste("Duplicated high-order latent(s) definition found:",
 	    names(a.tbleft)[a.tbleft>1]))
     }
     #print(a.holatent)
-    
+
     # Check left-mv duplication / left-existing lv duplication
     i.dup <- union(which(!is.na(match(names(a.holatent), a.col))),
       which(!is.na(match(names(a.holatent), names(a.ridx)))))
-    
+
     # stop: latent variable name(s) dup. w/ manifest variables
     if (length(i.dup))
       stop(paste("Duplicated high-order latent naming(s) with manifest/latent variables found:", paste(names(a.holatent)[i.dup], collapse=" ")))
-  
+
     ####
     # Right-side variables check
     ####
     a.right <- unlist(lapply(a.higher, function(a)a[2]))
     a.rval <- strsplit(a.right, "\\+")
     a.rall <- unique(unlist(a.rval))
-        
+
     i.namechk <- which(is.na(match(a.rall, names(a.ridx))))
-    
+
     # stop: invalid column
     if (length(i.namechk))
       stop(paste("The following latents in the formula do not exist:", paste(a.rall[i.namechk], collapse=" ")))
-      
+
     a.hridx <- lapply(strsplit(a.right, "\\+"), function(a)match(a, names(a.ridx)))
     names(a.hridx) <- names(a.holatent)
     for (i in 1:length(a.hridx))
@@ -529,7 +530,7 @@ parse.formula <- function(
     for (i in 1:length(a.hridx))
       r.W002[i,a.hridx[[i]]] <- n.param
     r.W002 <- t(r.W002)
-    
+
     # Remove parsed data
     a.fml[i.higher] <- ""
   } else
@@ -558,16 +559,16 @@ parse.formula <- function(
     ####
     a.lr <- unique(c(unlist(lapply(a.inner, function(a)a[1])), a.rall))
     a.nice <- grep("^[a-zA-Z_]\\w*$", a.lr)
-    
+
     # stop: invalid naming
     if (length(a.lr) != length(a.nice))
       stop(paste("The following latent(s) have invalid naming:", paste(a.lr[-a.nice], collapse=" ")))
     #print(a.lr)
-    
+
     # Duplication check w/ manifest variables
     a.lr.uniq <- unique(a.lr)
     i.lr.dup <- which(!is.na(match(a.lr.uniq, a.col)))
-    
+
     # stop: latent variable name(s) dup. w/ manifest variables
     if (length(i.lr.dup))
       stop(paste("Duplicated latent naming(s) with manifest variables found:", paste(a.lr.uniq[i.lr.dup], collapse=" ")))
@@ -575,25 +576,25 @@ parse.formula <- function(
     # All must exist on l-m
     b.sane <- !is.na(match(a.lr, a.ltname))
     i.invalid <- which(b.sane == FALSE)
-    
+
     # stop: Invalid left-side variables found
     if (length(i.invalid)) {
       stop(paste("Invalid latent(s) found:", paste(unique(a.lr[i.invalid]), collapse=" ")))
     }
-    
+
     # Remove parsed data
     a.fml[i.inner] <- ""
-    
+
     ### RETURN : B00
 	#print(a.inner)
     for (i in a.inner) {
       i.x <- match(i[1], a.ltname)
-      
+
       # For each element in the right part of the equation
 	  for (j in strsplit(i[2], "\\+")[[1]]) {
 	    #cat("J value\n")
 		#print(j)
-        
+
         # If the element contains *, it should be a constraint
 	    if (length(grep("\\*", j))) {
           # Assumes the former part is contraint/function, while the latter part is the variable
@@ -601,11 +602,11 @@ parse.formula <- function(
 
 		  # Try to convert it num
 		  tvar <- suppressWarnings(as.numeric(tmp[1]))
-          
+
 		  # Try to convert it const if fails
 		  if (is.na(tvar))
 		    tvar <- a.const[tmp[1]]
-            
+
 		  # Try to convert it function
 		  if (length(grep("^\\w+\\([^\\)]+\\)$", tmp[1]))) {
             tmp.ret   <- parse.func(fun.cache, tmp[1], idx.B00)
@@ -622,7 +623,7 @@ parse.formula <- function(
 		} else {
 		  if (b.equalP) {
 		    tvar <- idx.B00
-			idx.B00 <- idx.B00 + 1		    
+			idx.B00 <- idx.B00 + 1
 			idx.const.B00 <- rbind(idx.const.B00, c(i.x, match(j, a.ltname)))
 		  } else
 		    tvar <- n.param
@@ -645,7 +646,7 @@ parse.formula <- function(
     a.idx.B00 <- which(r.W002!=0, arr.ind=TRUE)
     n.nonho <- length(a.ltname)-length(a.hridx)
     for (j in 1:nrow(a.idx.B00)) {
-      tmp <- a.idx.B00[j,]	
+      tmp <- a.idx.B00[j,]
       if (attr(a.hridx[[tmp[2]]], "reflective") != 0 &&
 	    r.B00[tmp[2]+n.nonho,tmp[1]] == 0) {
 		if (a.holatent[tmp[2]] == 0) next()
@@ -663,13 +664,13 @@ parse.formula <- function(
     cat("Browser open by debug mode\n")
     browser()
   }
-  
+
   a.remained <- which(nchar(a.fml) > 0)
   if (length(a.remained)) {
     stop(paste("The following lines were not parsed:", paste(a.remained, collapse=" ")))
   } else if (b.debug == TRUE)
     cat("## SUCCEEDED [", gsub("\\n", " ", s.fml), "]\n")
-	
+
   # Re-arrange B00 if required
   if (b.equalP == TRUE) {
   	a.idx.B00 <- sort((idx.const.B00[,1]-1)*ncol(r.B00) + idx.const.B00[,2])
@@ -682,7 +683,7 @@ parse.formula <- function(
 	  }
 	}
   }
-    
+
   # Which row is empty?
   i.val <- rep(1, nrow(r.W00))
   i.val[which(rowSums(r.W00) == 0)] <- 0
@@ -698,7 +699,7 @@ parse.formula <- function(
   }
   r.W00 <- r.W00[i.val != 0,,drop=F]
   r.C00 <- r.C00[,i.val != 0,drop=F]
-  
+
   # Make sure Z0 as numeric
   m.data.ret <- matrix(as.numeric(as.matrix(m.data.ret)), ncol=sum(i.val!=0))
   colnames(m.data.ret) <- colnames(m.data)[i.val != 0]
@@ -779,7 +780,7 @@ prt.latent <- function(lname, samplesizes, prt3, prt4, prt5, v) {
 
 prt.msd <- function(gname, grp, n1, n2, samplesizes, prt3, prt4, prt5, prt6, v1, v2=NULL) {
 	n.group <- ncol(samplesizes)
-	
+
 	if (all(v1==0)) {
 		cat(sprintf(prt6, "NULL"), "\n\n")
 		return()
@@ -847,7 +848,7 @@ qualmeasures <- function(object) {
 	prt3 <- paste("%", nv, "s", sep="")
 	prt4 <- paste("  %", nv, "g", sep="")
 	prt5 <- paste("  %", nv, "s", sep="")
-    
+
     prt.lname <- object$lname
 	prt.loadtype <- object$loadtype
     while (length(prt.lname)) {
@@ -961,7 +962,7 @@ effectmeasures <- function(object) {
 fitmeasures <- function(object) {
 	cat("  Number of parameters       ", object$NPAR, "\n")
 	cat("  Number of bootstrap samples", object$nbt, "\n\n")
-	
+
 	lb <- object$lb
 	ub <- object$ub
 
@@ -999,7 +1000,7 @@ fitmeasures <- function(object) {
 		round(cbind(object$FIT_M),4),
 		round(cbind(object$FIT_S),4)
 	)
-	
+
 	prt1 <- paste("%", nv, "s   %", n.prtcollen, "g   %", n.prtcollen, "g   %", n.prtcollen, "g   %", n.prtcollen, "g\n", sep="")
 	prt2 <- paste("%", nv, "s   %", n.prtcollen, "s   %", n.prtcollen, "s   %", n.prtcollen, "s   %", n.prtcollen, "s\n", sep="")
 
@@ -1028,7 +1029,7 @@ summary.gesca <- function(object, ...) {
     n.prtvarlen2 <- max(nchar(object$lname))+2  # Print length of variable width
     n.prtrellen <- max(nchar(object$lname))*2+2 # Print length of variable width
     n.prtgrplen <- max(nchar(object$grp))       # Print length of group width
-	
+
 	wname <- object$wname
 	lb    <- object$lb
 	ub    <- object$ub
@@ -1100,7 +1101,7 @@ summary.gesca <- function(object, ...) {
             res10 <- round(cbind(object$mW1,
 				as.matrix(apply(t(object$MatW1),1,sd)),
 				as.matrix(t(object$sortw1)[,lb]), as.matrix(t(object$sortw1)[,ub])),4)
-			
+
         pl <- 0
         for (j in 1:n.group) {
           if (n.group > 1)
@@ -1109,7 +1110,7 @@ summary.gesca <- function(object, ...) {
             cat(sprintf(prt2, "", "Estimate", "Std.Error", "95%CI_LB", "95%CI_UB"))
           else
             cat(sprintf(prt2, "", "Estimate", "", "", ""))
-          
+
           for (i in 1:length(sub.wname))
             if (ncol(res10) == 4) cat(sprintf(prt1, sub.wname[i],
               res10[i+pl,1], res10[i+pl,2],
@@ -1138,9 +1139,9 @@ summary.gesca <- function(object, ...) {
 				cat(sprintf(prt2y, "", "Estimate", "Std.Error", "95%CI_LB", "95%CI_UB"))
 			  else
 				cat(sprintf(prt2y, "", "Estimate", "", "", ""))
-				
+
 			  lname.a <- na.omit(object$lname[rowSums(object$W002)!=0][1:nrow(object$W002)])
-			  
+
 			  for (i in 1:length(lname.a))
 				if (ncol(res10.2) == 4) cat(sprintf(prt2y, lname.a[i],
 				  res10.2[i+pl,1], res10.2[i+pl,2],
@@ -1149,7 +1150,7 @@ summary.gesca <- function(object, ...) {
 				  res10.2[i+pl,1]))
 			  pl <- pl + length(lname.a)
 			  cat("\n")
-			}     
+			}
 		}
     } else {
         cat("Estimates of Weights:\n\n")
@@ -1172,9 +1173,9 @@ summary.gesca <- function(object, ...) {
           for (i in 1:length(sub.wname))
             if (ncol(res10) == 4) cat(sprintf(prt1, sub.wname[i],
               res10[i+pl,1], res10[i+pl,2],
-              res10[i+pl,3], res10[i+pl,4])) 
+              res10[i+pl,3], res10[i+pl,4]))
 			else cat(sprintf(prt1s, sub.wname[i],
-              res10[i+pl,1])) 
+              res10[i+pl,1]))
           pl <- pl + length(sub.wname)
           cat("\n")
         }

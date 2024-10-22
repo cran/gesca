@@ -1,6 +1,5 @@
 \name{qualmeasures}
 \alias{qualmeasures}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Reliability and Validity Measures
 }
@@ -10,7 +9,6 @@ A variety of reliability and validity measures.
 \usage{
 qualmeasures(object)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
 An object of class. This can be created via the \code{\link{gesca.run}} function.
@@ -26,19 +24,19 @@ Numeric vectors of the reliability and validity measures.
 \code{\link{gesca.run}}
 }
 \examples{
-
+\donttest{
 library(gesca)
 data(gesca.rick2) # Organizational identification example of Bagozzi
 
 # Model specification
 myModel <- "
-		# Measurement model 
+		# Measurement model
 		OP =~ cei1 + cei2 + cei3
 		OI =~ ma1 + ma2 + ma3
 		AC_J =~ orgcmt1 + orgcmt2 + orgcmt3
 		AC_L =~ orgcmt5 + orgcmt6 + orgcmt8
-		
-		# Structural model 
+
+		# Structural model
 		OI ~ OP
 		AC_J ~ OI
 		AC_L ~ OI
@@ -47,5 +45,5 @@ myModel <- "
 # Run a multiple-group GSCA with the grouping variable gender:
 GSCA.group <- gesca.run(myModel, gesca.rick2, group.name = "gender", nbt=50)
 qualmeasures(GSCA.group)
-
+}
 }

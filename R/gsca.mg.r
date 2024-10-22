@@ -8,28 +8,28 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 	# for all missing data cases
 	# moption = 0 (no missing), 1 (listwise deletion), 2 (mean substitution), 3 (least squares imputation)
 	#---------------------------------------
-	
+
 	# listwise deletion
 	if ( moption == 1 ) {
 		nrow <- nrow(z0)
-		row_index <- rep(1,nrow)		
+		row_index <- rep(1,nrow)
 		for (i in 1:nrow) {
 			if ( sum(which(z0[i,] == missingvalue)) > 0 ) { row_index[i] = 0 }
 		}
 		rindex <- which(row_index != 0)
 		z0 <- z0[rindex,]
 		group_var <- group_var[rindex]
-	} 
+	}
 
 	# number of groups and cases per group
 	nobs_tot <- nrow(z0)
-	nvar <- ncol(z0)	
+	nvar <- ncol(z0)
 	ng <- length(unique(group_var))
 	nobs_g <- matrix(,1,ng)
 	for (j in 1:ng) {
 		nobs_g[,j] <- as.numeric(table(group_var))[j]
 	}
-	
+
 	# case numbers for each group
 	case_index <- matrix(,ng,2)
 	kk <- 0
@@ -39,18 +39,18 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 		case_index[j,1] = k
 		case_index[j,2] = kk
 	}
-	
+
 	# ---------------------------------------
 	# model specification for a single group
 	# ---------------------------------------
-	
+
 	nlv <- length(loadtype)		# number of latents
 	ntv <- nvar + nlv			# sum of indicators and latents
 	for (j in 1:nlv) {
 		if ( loadtype[j] == 0 ) { C00[j,] = matrix(0,1,nvar) }
 	}
 	A00 <- cbind(C00,B00)
-	
+
 	#V001 <- matrix(0,nvar,nvar)
 	#for (j in 1:nlv) {
 	#	nzaj <- which(C00[j,] != 0)
@@ -61,7 +61,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 	#}
 	V001 <- diag(1,nvar)
 	V00 <- cbind(V001,W00)
-	
+
 	# ---------------------------------------
 	# model specification for all groups & initial random starts
 	# ---------------------------------------
@@ -101,17 +101,17 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 		kk <- kk + ntv
 		I[k:kk,] <- diag(1,ntv)
 	}
-	
+
 	# generate orthogonal projector of equality constraints
 	output.constmat <- constmat(A0)
 	PHT <- output.constmat$PHT
 	num_nzct <- output.constmat$num_nzct
 	num_const <- output.constmat$num_const
-	
+
 	# ---------------------------------------
 	# bootstrap starts here
 	# ---------------------------------------
-	
+
 	# number of weights, loadings and path coefficients per group
 	num_nnz_W00 <- length(W00[!W00 == 0])
 	num_nnz_C00 <- length(C00[!C00 == 0])
@@ -136,7 +136,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 	MatID_M <- c()
 
 	for (b in 0:nbt) {
-	
+
 		# generate a bootstrap sample Z (when b == 0, use the original data)
 		if (b == 0) {
 			if (moption > 1) {
@@ -152,7 +152,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 			output.bootsample <- bootsample(z0, case_index, nvar, nobs_g, ng, b, nobs_tot)
 			Z <- output.bootsample$Z
 		}
-	
+
 		# parameter estimation
 		if (b == 0) {
 			if (moption == 3) {
@@ -185,11 +185,11 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 			it <- output.als.mg$it
 			imp <- output.als.mg$imp
 		}
-	
+
 		corF <- t(Gamma) %*% Gamma 	# latent correlations across groups
 		CR <- t(A[,1:nvar]) 		# loadings
 		BR <- t(A[,(nvar+1):ntv]) 	# path coefficients
-		
+
 		DF <- nobs_tot*nvar
 		npw <- length(which(W0 == 99))
 		dpht <- diag(PHT)
@@ -234,7 +234,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 
 		# original sample solution
 		if ( b == 0 ) {
-		
+
 			if ( moption == 2 ) { z0 <- z0_meanimp
 			} else if ( moption == 3 ) {
 				z0 <- matrix(0,nobs_tot,nvar)
@@ -246,12 +246,12 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 					# ZZ - data after LS imputation
 				}
 			}
-			
+
 			if ( it <= itmax ) {
 				if ( imp <= ceps ) {
-					cat("The ALS algorithm converged in", it, "iterations (convergence criterion =", ceps, ")", "\n")
+				  message(paste("The ALS algorithm converged in", it, "iterations (convergence criterion =", ceps, ")", "\n"))
 				} else {
-					cat("The ALS algorithm failed to converge in", it, "iterations (convergence criterion =", ceps, ")", "\n")
+				  message(paste("The ALS algorithm failed to converge in", it, "iterations (convergence criterion =", ceps, ")", "\n"))
 				}
 			}
 
@@ -275,7 +275,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 			lvvar <- matrix(0,ng,nlv)
 			corr_corres <- matrix(0,ng*nvar,nvar)	# matrix with correlations in lower trigular and correlation residuals in upper triangular
 			ss <- 0
-			kk <- 0	
+			kk <- 0
 			for (g in 1:ng) {
 				s <- ss + 1
 				ss <- ss + nlv
@@ -316,7 +316,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 						Alpha[g,j] <- 1
 					}
 				}
-				
+
 				# calculate latent scores
 				lvscore_g <- lvscore(z0_g, W_g)
 				lvmean[g,] <- apply(lvscore_g,2,mean)
@@ -345,20 +345,20 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 			ID_S <- indirect_s
 			TE_M <- total_m
 			ID_M <- indirect_m
-			
+
 		} else {	# bootstrap sample solution
 			vecw <- as.matrix(W[which(!W == 0)])
 			vecload <- as.matrix(CR[which(!CR == 0)])
 			vecbeta <- as.matrix(BR[which(!BR == 0)])
 			veccorF <- as.matrix(corF[which(!corF == 0)])
-		 
+
 			vec_FIT[b] <- Fit
 			vec_FIT_m[b] <- Fit_m
 			vec_FIT_s[b] <- Fit_s
 			vec_AFIT[b] <- Afit
 			vec_GFI[b] <- Gfi
 			vec_SRMR[b] <- Srmr
-		 
+
 			MatW[b,] <- t(vecw)
 			Matload[b,] <- t(vecload)
 			Matbeta[b,] <- t(vecbeta)
@@ -368,13 +368,13 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 			MatTE_S <- rbind(MatTE_S,total_s[which(!total_s == 0)])
 			MatID_S <- rbind(MatID_S,indirect_s[which(!indirect_s == 0)])
 			MatTE_M <- rbind(MatTE_M,total_m[which(!total_m == 0)])
-			MatID_M <- rbind(MatID_M,indirect_m[which(!indirect_m == 0)])		
+			MatID_M <- rbind(MatID_M,indirect_m[which(!indirect_m == 0)])
 		}
 	}
 
 	# display bootstrap GSCA output
 	if ( nbt > 0 ) {
-	
+
 	lb <- ceiling(nbt*0.025)
 	ub <- ceiling(nbt*0.975)
 	sortFIT <- sort(vec_FIT)
@@ -392,7 +392,7 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 	sortid_s <- apply(MatID_S,2,sort)
 	sortte_m <- apply(MatTE_M,2,sort)
 	sortid_m <- apply(MatID_M,2,sort)
-	
+
 	output.gsca.mg <- list(WR = WR, CR = Cr, BR = Br, samplesizes = samplesizes, NPAR = NPAR,
 						FIT = FIT, FIT_M = FIT_M, FIT_S = FIT_S, AFIT = AFIT, GFI = GFI, SRMR = SRMR,
 						R2 = R2, AVE = AVE, Alpha = Alpha, rho = rho, LV_MEAN = LV_MEAN, LV_VAR = LV_VAR,
@@ -407,9 +407,9 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 						sortload = sortload, sortbeta = sortbeta, sortsmc = sortsmc, sortcorF = sortcorF,
 						sortte_s = sortte_s, sortid_s = sortid_s, sortte_m = sortte_m, sortid_m = sortid_m)
 	output.gsca.mg
-	
+
 	} else {
-	
+
 	output.gsca.mg <- list(WR = WR, CR = Cr, BR = Br, samplesizes = samplesizes, NPAR = NPAR,
 						FIT = FIT, FIT_M = FIT_M, FIT_S = FIT_S, AFIT = AFIT, GFI = GFI, SRMR = SRMR,
 						R2 = R2, AVE = AVE, Alpha = Alpha, rho = rho, LV_MEAN = LV_MEAN, LV_VAR = LV_VAR,
@@ -417,6 +417,6 @@ gsca.mg <- function (z0, group_var, W00, C00, B00,
 						TE_S = TE_S, ID_S = ID_S, TE_M = TE_M, ID_M = ID_M,
 						mW = mW, mC = mC, mB = mB, mSMC = mSMC, mCF = mCF)
 	output.gsca.mg
-	
+
 	}
 }

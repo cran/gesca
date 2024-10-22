@@ -42,7 +42,9 @@ Bergami, M., & Bagozzi, R. P. (2000). Self-categorization, affective commitment 
 Hwang, H., & Takane, Y. (2014). Generalized Structured Component Analysis: A Component-Based Approach to Structural Equation Modeling (pp.112-119). Boca Raton, FL: Chapman & Hall/CRC Press.
 }
 \examples{
+
 data(gesca.rick2)
 str(gesca.rick2)
 }
+
 \keyword{datasets}

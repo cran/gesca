@@ -11,7 +11,6 @@ gesca.run(myModel, data, group.name = NULL, group.equal = NULL,
           nbt = 100, itmax = 100, ceps = 1e-5,
           moption = 0, missingvalue = -9999)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{myModel}{
 A simple description of the user-specified model using the gesca model syntax. The model can be described by strings or multiple lines of formulas. See Details and Examples below.
@@ -38,7 +37,7 @@ Convergence threshold for the ALS algorithm. The default is set to 0.00001.
 Options of handling missing data. By default, it is assumed that no value is missing in all variables. gesca 1.0 currently offers three options for handling missing data and the choice should be one of the following: list-wise deletion (\code{moption = 1}), mean substitution (\code{moption = 2}), and least-squares imputation (\code{moption = 3}).
 }
   \item{missingvalue}{
-A missing value identifier. Only used if \code{moption} is specified. By default, every element of \code{-9999} in \code{data} is defined as a missing value. Users can use any numeric or integer value to specify missing values in data. See Examples below. 
+A missing value identifier. Only used if \code{moption} is specified. By default, every element of \code{-9999} in \code{data} is defined as a missing value. Users can use any numeric or integer value to specify missing values in data. See Examples below.
 }
 }
 \details{
@@ -72,7 +71,6 @@ If the user wants to fix or constrain parameters to constants, it can be done in
 
 \code{    L5 =~ z12}
 
-\code{}
 
 \code{    L2 ~ L1}
 
@@ -102,7 +100,7 @@ The above model is identical to the following model using labels (instead of val
 
 \code{    L5 =~ z12}
 
-\code{}
+
 
 \code{    L2 ~ L1}
 
@@ -112,7 +110,7 @@ The above model is identical to the following model using labels (instead of val
 
 \code{    L5 ~ c2*L4}
 
-\code{}
+
 
 \code{    c1 == 0.01}
 
@@ -143,43 +141,43 @@ An object of class \code{gesca.run}, for which a summary method and four functio
 Hwang, H., & Takane, Y. (2014). Generalized structured component analysis: A Component-Based Approach to Structural Equation Modeling (pp.13-126). Boca Raton, FL: Chapman & Hall/CRC Press.
 }
 \examples{
-
+\donttest{
 library(gesca)
 data(gesca.rick2) # Organizational identification example of Bagozzi
                   # has the grouping variable "gender"
 
 # Model specification
 myModel <- "
-		# Measurement model 
+		# Measurement model
 		OP =~ cei1 + cei2 + cei3
 		OI =~ ma1 + ma2 + ma3
 		AC_J =~ orgcmt1 + orgcmt2 + orgcmt3
 		AC_L =~ orgcmt5 + orgcmt6 + orgcmt8
-		
-		# Structural model 
+
+		# Structural model
 		OI ~ OP
 		AC_J ~ OI
 		AC_L ~ OI
 "
 
 # In case the user wants to apply a single-group analysis ignoring the group information:
-# rick2.GSCA <- gesca.run(myModel, gesca.rick2)
+rick2.GSCA <- gesca.run(myModel, gesca.rick2)
 
 # Run a multiple-group GSCA with the grouping variable gender:
-# GSCA.group <- gesca.run(myModel, gesca.rick2, group.name = "gender")
-# summary(GSCA.group)
+GSCA.group <- gesca.run(myModel, gesca.rick2, group.name = "gender")
+summary(GSCA.group)
 GSCA.group.nbt0 <- gesca.run(myModel, gesca.rick2, group.name ="gender", nbt = 0)
 summary(GSCA.group.nbt0)		# no bootstrapped std errors
 effectmeasures(GSCA.group.nbt0)
 
 # Models with the imposition of constraints on parameters across groups
 # (1) equality constraints
-# equl.cstr <- gesca.run(myModel, gesca.rick2, group.name ="gender",
-#                  group.equal = c("loadings", "paths"))
+equl.cstr <- gesca.run(myModel, gesca.rick2, group.name ="gender",
+                        group.equal = c("loadings", "paths"))
 
 # (2) identical loadings but different path coefficients
-# equl.loadings <- gesca.run(myModel, gesca.rick2, group.name ="gender",
-#                      group.equal = c("loadings"))
+equl.loadings <- gesca.run(myModel, gesca.rick2, group.name ="gender",
+                            group.equal = c("loadings"))
 
 # (3) More constraints across groups with some formative indicators
 myModel.con <- "
@@ -198,23 +196,24 @@ summary(Const.Form)
 
 # Second-order latent variable modeling
 myModel5 <- "
-		# Measurement model 
+		# Measurement model
 		OP =~ cei1 + cei2 + cei3 + cei4 + cei5 + cei6 + cei7 + cei8
 		OI =~ ma1 + ma2 + ma3 + ma4 + ma5 + ma6
 		AC_J =~ orgcmt1 + orgcmt2 + orgcmt3 + orgcmt7
 		AC_L =~ orgcmt5 + orgcmt6 + orgcmt8
 
-		# Second-order latents 
+		# Second-order latents
 		AC =: AC_J + AC_L
 
-		# Structural model 
+		# Structural model
 		OI ~ OP
 		AC ~ OI
 "
 
-# second.GSCA <- gesca.run(myModel5, gesca.rick2, group.name = "gender")
-# summary(second.GSCA)
+second.GSCA <- gesca.run(myModel5, gesca.rick2, group.name = "gender")
+summary(second.GSCA)
 second.GSCA.nbt0 <- gesca.run(myModel5, gesca.rick2, group.name = "gender", nbt=0)
 summary(second.GSCA.nbt0)
 
+}
 }
